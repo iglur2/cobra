@@ -4,7 +4,12 @@ const context = canvas.getContext('2d');
 
 var menu = document.getElementById('menuScreen')
 var buttonPlay = document.getElementById("buttonPlay")
-
+var buttonNxt = document.getElementById('buttonNxt')
+var menuNext = document.getElementById('menuNext')
+var title = document.querySelector('h3')
+var score = 0
+var levelDois = false
+var speed = 100
 
 //tamanho padrao da cobra e comida
 const size = 32;
@@ -13,11 +18,13 @@ var snake = [
     { x: 0, y: 0 },
     { x: 32, y: 0 }
 ]
+var obstacles = [{ x: 0, y: 0, w: 32, h: 512 }, { x: 480, y: 0, w: 32, h: 512 }, { x: 0, y: 0, w: 512, h: 32 }, { x: 0, y: 480, w: 512, h: 32 }]
+//, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
 
 //função pra gerar uma coordenada aleatoria para a comida
 function randomNumber() {
-    let random = Math.round(Math.random() * 480);
-    return Math.round(random / 32) * 32
+    let random = Math.round(Math.random() * 448);
+    return (Math.round(random / 32) * 32)
 }
 //objeto da comida
 const food = {
@@ -43,6 +50,17 @@ function criarComida() {
 //declaração da direção e id do loop sem atribuição de valor
 let direction, loopId
 
+
+function criarObstaculos() {
+    if (levelDois) {
+        context.fillStyle = 'white'
+        for (i = 0; i < obstacles.length; i++) {
+            context.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].w, obstacles[i].h);
+        }
+    } else {
+        return;
+    }
+}
 //função para "desenhar" a cobra
 function criarCobrinha() {
     context.fillStyle = "red";
@@ -84,7 +102,20 @@ function checkFood() {
         //cria novos valores pra as coordenadas da comida
         food.x = randomNumber()
         food.y = randomNumber()
+        score += 1
+        title.innerHTML = parseInt(score)
+        speed = speed - 5
+
     }
+
+    if (score == 10) {
+        direction = undefined
+        menuNext.style.display = "flex"
+        score += 1
+        levelDois = true
+    }
+
+
 }
 
 function checkColision() {
@@ -94,12 +125,22 @@ function checkColision() {
     const selfColision = snake.find((position, index) => {
         return index < neckIndex && position.x == head.x && position.y == head.y
     })
+
+
     if (head.x < 0 || head.x > 480 || head.y < 0 || head.y > 480) {
         if (direction == "right") head.x = 0;
         if (direction == "left") head.x = 480;
         if (direction == "down") head.y = 0;
         if (direction == "up") head.y = 480;
     }
+
+    if (levelDois) {
+        if (head.x < 32 || head.x > 448 || head.y < 32 || head.y > 448) {
+            gameOver()
+        }
+    }
+
+
 
     if (selfColision) {
         gameOver()
@@ -112,16 +153,13 @@ function gameOver() {
 
 }
 
-function applySpeed(){
-    const speedInput = document.getElementById("speed");
-    var speed = (Number.parseInt(speedInput.max) + Number.parseInt(speedInput.min)) - Number.parseInt(speedInput.value);
-    return speed;
-}
 //loop para redesenhar o tabuleiro a cada x milissegundos
 function gameLoop() {
     clearInterval(loopId) //limpa o set interval para n ter o risco de ficarem varios rodando ao mesmo tempo
     context.clearRect(0, 0, 600, 600) //limpa o tabuleiro
 
+
+    criarObstaculos()
     criarComida()
     moveSnake()
     criarCobrinha()
@@ -132,7 +170,7 @@ function gameLoop() {
 
 
     loopId = setTimeout(() => { gameLoop() } //setTimeout chama a game loop para manter o loop ativo
-        , applySpeed()) // quanto menor intervalo maior velocidade da cobra
+        , speed) // quanto menor intervalo maior velocidade da cobra
 }
 
 
@@ -147,8 +185,6 @@ document.addEventListener("keydown", ({ key }) => {
 // Event listeners for swipe gestures
 canvas.addEventListener("touchstart", startTouch);
 canvas.addEventListener("touchmove", moveTouch);
-
-// ...
 
 function handleKeyPress(key) {
     document.addEventListener("keydown", ({ key }) => {
@@ -213,7 +249,6 @@ function moveTouch(e) {
     swipeInitialX = null;
     swipeInitialY = null;
 
-    e.preventDefault();
 }
 
 function handleSwipe(swipeDirection) {
@@ -225,5 +260,16 @@ buttonPlay.addEventListener('click', function () {
     menu.style.display = "none"
     snake = [{ x: 0, y: 0 },
     { x: 32, y: 0 }]
+    title.innerHTML = "0"
+    score = 0
+    levelDois = false
+    speed = 100
+    gameLoop()
+})
+
+buttonNxt.addEventListener('click', function () {
+    menuNext.style.display = "none"
+    snake = [{ x: 32, y: 32 },
+    { x: 64, y: 32 }]
     gameLoop()
 })

@@ -12,13 +12,19 @@
 
 <body>
     <h3>SNAKE GAME</h3>
-    <input id="speed" min="30" max="230" type="range" step="10" value="130" onchange="applySpeed()">
     <div id="menuScreen">
         <span class="gameOver">PERDESTE</span>
         
         <button id="buttonPlay"><span class="material-symbols-outlined">
         refresh</span></button>
     </div>
+    <div id="menuNext">
+            <span class="nextlvl">Proximo Nivel</span>
+            
+            <button id="buttonNxt"><span class="material-symbols-outlined">
+            refresh</span></button>
+    </div>
+    <p id="aaa"></p>
     <canvas width="512" height="512"></canvas>
     <script src="js/script.js"></script>
 </body>

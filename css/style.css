@@ -37,7 +37,7 @@ canvas {
     display: none;
     flex-direction: column;
     align-items: center;
-    background-color: #2a2626;
+    background-color: #6a6666;
     padding: 100px;
     border-radius: 10px;
 }
@@ -45,7 +45,6 @@ canvas {
 .gameOver {
     font-size: 40px;
     font-weight: 500;
-    color: white;
 }
 
 
@@ -58,4 +57,30 @@ canvas {
     align-items: center;
     justify-content: cen;
     margin-top: 30px;
+}
+
+#menuNext {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background-color: #6a6666;
+    padding: 100px;
+    border-radius: 10px;
+}
+
+#buttonNxt {
+    border: none;
+    border-radius: 120px;
+    padding: 10px;
+    color: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: cen;
+    margin-top: 30px;
+}
+
+.nextLvl {
+    font-size: 40px;
+    font-weight: 500;
 }
