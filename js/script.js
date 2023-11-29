@@ -105,6 +105,9 @@ function checkFood() {
         score += 1
         title.innerHTML = parseInt(score)
         speed = speed - 5
+        const audio = new Audio("../som.mp3");
+
+audio.play();
 
     }
 
