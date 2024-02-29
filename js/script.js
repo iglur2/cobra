@@ -7,9 +7,13 @@ var buttonPlay = document.getElementById("buttonPlay")
 var buttonNxt = document.getElementById('buttonNxt')
 var menuNext = document.getElementById('menuNext')
 var title = document.querySelector('h3')
+var highScoreDisplay = document.getElementById('highScore')
+var endScore = document.querySelector("#endScore");
 var score = 0
 var levelDois = false
-var speed = 100
+var speed = 200
+var highscore = 0
+var gameisOver = false
 
 //tamanho padrao da cobra e comida
 const size = 32;
@@ -18,8 +22,8 @@ var snake = [
     { x: 0, y: 0 },
     { x: 32, y: 0 }
 ]
-var obstacles = [{ x: 0, y: 0, w: 32, h: 512 }, { x: 480, y: 0, w: 32, h: 512 }, { x: 0, y: 0, w: 512, h: 32 }, { x: 0, y: 480, w: 512, h: 32 }]
-//, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
+// var obstacles = [{ x: 0, y: 0, w: 32, h: 512 }, { x: 480, y: 0, w: 32, h: 512 }, { x: 0, y: 0, w: 512, h: 32 }, { x: 0, y: 480, w: 512, h: 32 }]
+// //, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}
 
 //função pra gerar uma coordenada aleatoria para a comida
 function randomNumber() {
@@ -30,11 +34,11 @@ function randomNumber() {
 const food = {
     x: randomNumber(),
     y: randomNumber(),
-    color: "green"
+    color: "blue"
 }
 
 //funcao para "desenhar" a comida
-function criarComida() {
+function createFood() {
     //pra nao precisar ficar colocando food.x etc
     const { x, y, color } = food
 
@@ -51,18 +55,18 @@ function criarComida() {
 let direction, loopId
 
 
-function criarObstaculos() {
-    if (levelDois) {
-        context.fillStyle = 'white'
-        for (i = 0; i < obstacles.length; i++) {
-            context.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].w, obstacles[i].h);
-        }
-    } else {
-        return;
-    }
-}
+// function criarObstaculos() {
+//     if (levelDois) {
+//         context.fillStyle = 'white'
+//         for (i = 0; i < obstacles.length; i++) {
+//             context.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].w, obstacles[i].h);
+//         }
+//     } else {
+//         return;
+//     }
+// }
 //função para "desenhar" a cobra
-function criarCobrinha() {
+function createSnake() {
     context.fillStyle = "red";
 
     //for each pra percorrer cada item do array
@@ -104,19 +108,15 @@ function checkFood() {
         food.y = randomNumber()
         score += 1
         title.innerHTML = parseInt(score)
-        speed = speed - 5
-        const audio = new Audio("som.mp3");
-
-audio.play();
-
+        speed = speed - 2
     }
 
-    if (score == 10) {
-        direction = undefined
-        menuNext.style.display = "flex"
-        score += 1
-        levelDois = true
-    }
+    // if (score == 10) {
+    //     direction = undefined
+    //     menuNext.style.display = "flex"
+    //     score += 1
+    //     levelDois = true
+    // }
 
 
 }
@@ -136,54 +136,71 @@ function checkColision() {
         if (direction == "down") head.y = 0;
         if (direction == "up") head.y = 480;
     }
-
-    if (levelDois) {
-        if (head.x < 32 || head.x > 448 || head.y < 32 || head.y > 448) {
-            gameOver()
-        }
-    }
+    
+    // if (levelDois) {
+    //     if (head.x < 32 || head.x > 448 || head.y < 32 || head.y > 448) {
+    //         gameisOver = true
+    //         gameOver()
+    //     }
+    // }
 
 
 
     if (selfColision) {
+        gameisOver = true
         gameOver()
     }
 }
 
 function gameOver() {
+    snake = [{ x: 0, y: 0 },
+    { x: 32, y: 0 }]
     direction = undefined
+    endScore.innerHTML = `${score}`
     menu.style.display = "flex"
+
+
+}
+
+function setHighscore() {
+    if (score > highscore) {
+        highscore = score;
+    } else {
+        highscore = highscore
+    }
+    highScoreDisplay.innerHTML = `${highscore}`
 
 }
 
 //loop para redesenhar o tabuleiro a cada x milissegundos
 function gameLoop() {
+    if (!gameisOver) {
     clearInterval(loopId) //limpa o set interval para n ter o risco de ficarem varios rodando ao mesmo tempo
     context.clearRect(0, 0, 600, 600) //limpa o tabuleiro
 
 
-    criarObstaculos()
-    criarComida()
+    //criarObstaculos()
+    setHighscore()
+    createFood()
     moveSnake()
-    criarCobrinha()
+    createSnake()
     checkFood()
     checkColision()
 
 
 
-
-    loopId = setTimeout(() => { gameLoop() } //setTimeout chama a game loop para manter o loop ativo
+        loopId = setTimeout(() => { gameLoop() } //setTimeout chama a game loop para manter o loop ativo
         , speed) // quanto menor intervalo maior velocidade da cobra
+    }
 }
 
 
 gameLoop()
 
 //atribui o valor à variavel direção ao pressionar as setas
+        document.addEventListener("keydown", ({ key }) =>
+        handleKeyPress(key));
 
-document.addEventListener("keydown", ({ key }) => {
-    handleKeyPress(key);
-});
 
 // Event listeners for swipe gestures
 canvas.addEventListener("touchstart", startTouch);
@@ -191,16 +208,16 @@ canvas.addEventListener("touchmove", moveTouch);
 
 function handleKeyPress(key) {
     document.addEventListener("keydown", ({ key }) => {
-        if (key == "ArrowRight" && direction != "left") {
+        if (key == "d" && direction != "left") {
             direction = "right"
         }
-        if (key == "ArrowLeft" && direction != "right") {
+        if (key == "a" && direction != "right") {
             direction = "left"
         }
-        if (key == "ArrowUp" && direction != "down") {
+        if (key == "w" && direction != "down") {
             direction = "up"
         }
-        if (key == "ArrowDown" && direction != "up") {
+        if (key == "s" && direction != "up") {
             direction = "down"
         }
     })
@@ -261,12 +278,11 @@ function handleSwipe(swipeDirection) {
 
 buttonPlay.addEventListener('click', function () {
     menu.style.display = "none"
-    snake = [{ x: 0, y: 0 },
-    { x: 32, y: 0 }]
     title.innerHTML = "0"
     score = 0
+    speed = 200
+    gameisOver = false
     levelDois = false
-    speed = 100
     gameLoop()
 })
 
@@ -274,5 +290,6 @@ buttonNxt.addEventListener('click', function () {
     menuNext.style.display = "none"
     snake = [{ x: 32, y: 32 },
     { x: 64, y: 32 }]
+    gameisOver = false
     gameLoop()
 })
